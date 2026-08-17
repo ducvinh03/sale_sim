@@ -2,19 +2,38 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { MessageCircle, ShoppingBag } from "lucide-react";
+import { useEffect, useState } from "react";
 import { siteConfig } from "@/lib/config";
 import { useSelection } from "@/lib/selection-context";
 
 export function FloatingCartButton() {
   const { numbers, plan, openCart } = useSelection();
   const count = numbers.length + (plan ? 1 : 0);
+  const [toast, setToast] = useState<string | null>(null);
 
-  function handleZalo() {
-    window.open(
-      `https://zalo.me/${siteConfig.zaloPhone}`,
-      "_blank",
-      "noopener,noreferrer",
-    );
+  useEffect(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(null), 2400);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  async function handleZalo() {
+    const text =
+      "Xin chào MobiFone Sơn La,\n\nTôi muốn nhận tư vấn về SIM, gói cước và số đẹp phù hợp.\nVui lòng hỗ trợ tôi chi tiết hơn.\n\nCảm ơn!";
+
+    try {
+      await navigator.clipboard.writeText(text);
+      setToast("Đã sao chép tin nhắn cho Zalo");
+    } catch {
+      setToast("Không thể copy tự động, vui lòng dán thủ công vào Zalo");
+    }
+
+    const zaloLink = `https://zalo.me/${siteConfig.zaloPhone}`;
+    const newTab = window.open(zaloLink, "_blank", "noopener,noreferrer");
+
+    if (!newTab) {
+      window.location.href = zaloLink;
+    }
   }
 
   async function handleEmail() {
@@ -114,6 +133,19 @@ export function FloatingCartButton() {
             Xem yêu cầu ({numbers.length}
             {plan ? " + gói" : ""})
           </motion.button>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 16, scale: 0.96 }}
+            className="fixed bottom-5 left-1/2 z-[90] -translate-x-1/2 rounded-full border border-cyan-400/30 bg-slate-950/90 px-4 py-2 text-sm font-medium text-cyan-100 shadow-lg shadow-cyan-500/20 backdrop-blur"
+          >
+            {toast}
+          </motion.div>
         )}
       </AnimatePresence>
     </>

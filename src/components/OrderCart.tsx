@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   X,
@@ -18,36 +18,85 @@ function formatSo(so: string) {
   return `${so.slice(0, 4)}.${so.slice(4, 7)}.${so.slice(7, 10)}`;
 }
 
+function buildZaloMessage({
+  name,
+  phone,
+  plan,
+  numbers,
+  note,
+}: {
+  name: string;
+  phone: string;
+  plan?: { code: string; type: string; price: number } | null;
+  numbers: string[];
+  note: string;
+}) {
+  const lines = [
+    "Xin chào MobiFone Sơn La,",
+    "",
+    "Tôi muốn tư vấn SIM/ gói cước MobiFone Sơn La.",
+    name ? `Họ tên: ${name}` : "",
+    phone ? `Số điện thoại: ${phone}` : "",
+    plan
+      ? `Gói cước quan tâm: ${plan.code} (${plan.type}, ${formatVND(plan.price)})`
+      : "",
+    numbers.length > 0
+      ? `Số muốn chọn: ${numbers.map((n) => formatSo(n)).join(", ")}`
+      : "",
+    note ? `Ghi chú: ${note}` : "",
+    "",
+    "Vui lòng hỗ trợ tư vấn chi tiết và báo giá phù hợp.",
+  ].filter(Boolean);
+
+  return lines.join("\n");
+}
+
 export function OrderCart() {
   const { numbers, removeNumber, plan, cartOpen, closeCart } = useSelection();
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [note, setNote] = useState("");
   const [copied, setCopied] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
 
-  const message = useMemo(() => {
-    const lines = [
-      `Yêu cầu tư vấn SIM MobiFone Sơn La`,
-      name && `Họ tên: ${name}`,
-      phone && `SĐT liên hệ: ${phone}`,
-      plan &&
-        `Gói cước quan tâm: ${plan.code} (${plan.type}, ${formatVND(plan.price)})`,
-      numbers.length > 0 &&
-        `Số muốn chọn:\n${numbers.map((n) => "- " + formatSo(n)).join("\n")}`,
-      note && `Ghi chú: ${note}`,
-    ].filter(Boolean);
-    return lines.join("\n");
-  }, [name, phone, plan, numbers, note]);
+  useEffect(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(null), 2400);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
 
-  async function handleZalo() {
+  const message = useMemo(
+    () =>
+      buildZaloMessage({
+        name,
+        phone,
+        plan,
+        numbers,
+        note,
+      }),
+    [name, phone, plan, numbers, note],
+  );
+
+  async function handleCopyZaloText() {
     try {
       await navigator.clipboard.writeText(message);
       setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
+      setToast("Đã sao chép tin nhắn cho Zalo");
     } catch {
-      // clipboard may be unavailable; user can still copy from summary manually
+      setCopied(false);
+      setToast("Không thể copy tự động, vui lòng dán thủ công vào Zalo");
     }
-    window.open(`https://zalo.me/${siteConfig.zaloPhone}`, "_blank");
+
+    setTimeout(() => setCopied(false), 2500);
+  }
+
+  function handleOpenZalo() {
+    const zaloLink = `https://zalo.me/${siteConfig.zaloPhone}`;
+    const newTab = window.open(zaloLink, "_blank", "noopener,noreferrer");
+
+    if (!newTab) {
+      window.location.href = zaloLink;
+    }
   }
 
   async function handleEmail() {
@@ -73,9 +122,7 @@ export function OrderCart() {
       }
 
       closeCart();
-      window.alert(
-        "Yêu cầu tư vấn của bạn đã được gửi thành công. Chúng tôi sẽ liên hệ lại sớm.",
-      );
+      setToast("Yêu cầu tư vấn đã được gửi thành công.");
     } catch {
       const subject = encodeURIComponent("Yêu cầu tư vấn SIM MobiFone Sơn La");
       const body = encodeURIComponent(message);
@@ -204,19 +251,23 @@ export function OrderCart() {
               </div>
 
               <div className="space-y-3 pt-1">
-                <button
-                  onClick={handleZalo}
-                  className="flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-electric to-cyan px-5 py-3.5 text-sm font-semibold text-night shadow-lg shadow-electric/25 transition hover:brightness-110"
-                >
-                  {copied ? (
-                    <CheckCircle2 size={17} />
-                  ) : (
+                <div className="grid grid-cols-2 gap-2">
+                  <button
+                    onClick={handleOpenZalo}
+                    className="flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-electric to-cyan px-4 py-3 text-sm font-semibold text-night shadow-lg shadow-electric/25 transition hover:brightness-110"
+                  >
                     <MessageCircle size={17} />
-                  )}
-                  {copied
-                    ? "Đã copy nội dung — mở Zalo để gửi"
-                    : "Gửi yêu cầu qua Zalo"}
-                </button>
+                    Mở Zalo
+                  </button>
+                  <button
+                    onClick={handleCopyZaloText}
+                    className="flex items-center justify-center gap-2 rounded-full bg-white/10 px-4 py-3 text-sm font-semibold text-white transition hover:bg-white/20"
+                  >
+                    {copied ? <CheckCircle2 size={17} /> : <Copy size={17} />}
+                    {copied ? "Đã copy" : "Copy tin nhắn"}
+                  </button>
+                </div>
+
                 <button
                   onClick={handleEmail}
                   className="flex w-full items-center justify-center gap-2 rounded-full bg-white/10 px-5 py-3.5 text-sm font-semibold text-white transition hover:bg-white/20"
@@ -226,14 +277,27 @@ export function OrderCart() {
                 </button>
                 <div className="flex items-start gap-2 rounded-xl bg-white/5 px-4 py-3 text-xs text-mist/50">
                   <Copy size={14} className="mt-0.5 shrink-0" />
-                  Nút Zalo sẽ tự sao chép nội dung yêu cầu vào bộ nhớ tạm — bạn
-                  chỉ cần dán (paste) vào khung chat khi Zalo mở lên.
+                  Mở Zalo để chat nhanh hoặc bấm Copy tin nhắn để dán vào khung
+                  chat.
                 </div>
               </div>
             </div>
           </motion.aside>
         </>
       )}
+
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 16, scale: 0.96 }}
+            className="fixed bottom-5 left-1/2 z-[90] -translate-x-1/2 rounded-full border border-cyan-400/30 bg-slate-950/90 px-4 py-2 text-sm font-medium text-cyan-100 shadow-lg shadow-cyan-500/20 backdrop-blur"
+          >
+            {toast}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </AnimatePresence>
   );
 }
