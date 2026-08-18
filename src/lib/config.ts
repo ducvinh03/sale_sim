@@ -7,7 +7,8 @@ export const siteConfig = {
   zaloPhone: "0907279196", // dùng cho link zalo.me/<phone>
   // TODO: đổi sang email kinh doanh thật của bạn trước khi vận hành chính thức
   contactEmail: "vinhdinh568@gmail.com",
-  address: "MobiFone Sơn La, Tây Bắc, Việt Nam",
+  address:
+    "MobiFone Sơn La, 130 Chu Văn Thịnh, Phường Tô Hiệu, Tỉnh Sơn La, Việt Nam",
   facebook: "https://facebook.com",
   zone: "Sơn La",
   zoneAreas: [

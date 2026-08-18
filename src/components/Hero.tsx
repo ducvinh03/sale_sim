@@ -47,7 +47,7 @@ export function Hero() {
             className="glass mb-6 inline-flex items-center gap-2 rounded-full px-4 py-1.5 text-xs font-medium text-cyan"
           >
             <MapPin size={14} />
-            MobiFone {siteConfig.zone} · Sơn La – Tây Bắc
+            MobiFone {siteConfig.zone}
           </motion.div>
 
           <motion.h1
