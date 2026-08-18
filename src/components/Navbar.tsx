@@ -1,6 +1,8 @@
 "use client";
 
-import { Phone, ShoppingBag, Sparkles } from "lucide-react";
+import Image from "next/image";
+import { Moon, Phone, ShoppingBag, Sparkles, SunMedium } from "lucide-react";
+import { useEffect, useState } from "react";
 import { siteConfig } from "@/lib/config";
 import { useSelection } from "@/lib/selection-context";
 
@@ -13,22 +15,38 @@ const links = [
 ];
 
 const marqueeText =
-  "Quý khách hàng có nhu cầu chọn sim số đẹp liên hệ CV Đinh Đức Vình số điện thoại 0907279196 để được tư vấn tận nơi!";
+  "Quý khách hàng có nhu cầu chọn sim số đẹp liên hệ Đinh Đức Vình số điện thoại 0907279196 để được tư vấn tận nơi!";
 
 export function Navbar() {
   const { numbers, toggleCart } = useSelection();
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
+
+  useEffect(() => {
+    const savedTheme = localStorage.getItem("theme");
+    const nextTheme = savedTheme === "light" ? "light" : "dark";
+    setTheme(nextTheme);
+    document.documentElement.setAttribute("data-theme", nextTheme);
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   return (
     <>
       <header className="fixed top-0 z-50 w-full">
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-5 py-3 md:px-8">
-          <div className="glass flex items-center gap-2 rounded-full px-4 py-2">
-            <span className="font-display text-sm font-extrabold tracking-wide text-white">
-              5G <span className="text-cyan">MobiFone</span>
-            </span>
-            <span className="hidden text-xs text-mist/70 sm:inline">
-              · Sơn La
-            </span>
+          <div className="glass flex items-center gap-2 rounded-full px-3 py-2">
+            <div className="relative h-10 w-36 overflow-hidden rounded-full">
+              <Image
+                src="/images/tx.png"
+                alt="Logo MobiFone Sơn La"
+                fill
+                priority
+                className="object-contain object-left"
+              />
+            </div>
           </div>
 
           <nav className="glass hidden items-center gap-1 rounded-full px-2 py-1 lg:flex">
@@ -44,6 +62,20 @@ export function Navbar() {
           </nav>
 
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() =>
+                setTheme((prev) => (prev === "dark" ? "light" : "dark"))
+              }
+              className="glass flex h-10 w-10 items-center justify-center rounded-full text-white transition hover:bg-white/10"
+              aria-label="Chuyển đổi chế độ sáng tối"
+            >
+              {theme === "dark" ? (
+                <SunMedium size={16} className="text-cyan" />
+              ) : (
+                <Moon size={16} className="text-cyan" />
+              )}
+            </button>
             <a
               href={`tel:${siteConfig.tongDai}`}
               className="glass hidden items-center gap-2 rounded-full px-4 py-2 text-sm font-medium text-white transition hover:bg-white/15 sm:flex"

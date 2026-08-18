@@ -21,13 +21,15 @@ export function ZoneSection() {
               <MapPin size={13} /> Ưu đãi riêng khu vực
             </span>
             <h2 className="mt-4 font-display text-3xl font-extrabold text-white sm:text-4xl">
-              Người Sơn La gọi trong Zone {siteConfig.zone} — giá rẻ bất ngờ
+              Người Sơn La gọi trong khu vực {siteConfig.zone} — giá rẻ bất ngờ
             </h2>
             <p className="mt-4 max-w-lg text-mist/75">
-              SIM Bông Sen thuộc Zone {siteConfig.zone}, gồm 7 tỉnh:{" "}
-              <span className="text-white">{siteConfig.zoneAreas.join(", ")}</span>. Gọi cho
-              người thân, bạn bè, đối tác trong vùng — cước rẻ gấp nhiều lần so với gọi ngoài
-              zone.
+              SIM Bông Sen thuộc khu vực {siteConfig.zone}, gồm 7 tỉnh:{" "}
+              <span className="text-white">
+                {siteConfig.zoneAreas.join(", ")}
+              </span>
+              . Gọi cho người thân, bạn bè, đối tác trong vùng — cước rẻ gấp
+              nhiều lần so với gọi ngoài khu vực.
             </p>
 
             <div className="mt-6 flex flex-wrap gap-2">
@@ -51,14 +53,19 @@ export function ZoneSection() {
           >
             <div className="border-b border-white/10 px-6 py-4">
               <span className="font-display text-sm font-bold text-white">
-                Bảng cước thoại &amp; SMS — Zone {siteConfig.zone}
+                Bảng cước thoại &amp; SMS — Khu vực {siteConfig.zone}
               </span>
             </div>
             <div className="divide-y divide-white/10">
               {zoneRates.map((r) => (
-                <div key={r.label} className="flex items-center justify-between px-6 py-4">
+                <div
+                  key={r.label}
+                  className="flex items-center justify-between px-6 py-4"
+                >
                   <span className="text-sm text-mist/70">{r.label}</span>
-                  <span className="font-num text-base font-bold text-cyan">{r.value}</span>
+                  <span className="font-num text-base font-bold text-cyan">
+                    {r.value}
+                  </span>
                 </div>
               ))}
             </div>

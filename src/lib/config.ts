@@ -9,7 +9,7 @@ export const siteConfig = {
   contactEmail: "vinhdinh568@gmail.com",
   address: "MobiFone Sơn La, Tây Bắc, Việt Nam",
   facebook: "https://facebook.com",
-  zone: "CT4",
+  zone: "Sơn La",
   zoneAreas: [
     "Điện Biên",
     "Lai Châu",

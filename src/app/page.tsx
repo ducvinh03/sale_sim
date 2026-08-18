@@ -15,10 +15,10 @@ export default function Home() {
       <Navbar />
       <main className="flex-1">
         <Hero />
+        <NumberPicker />
         <PlansSection />
         <EsimSection />
         <ZoneSection />
-        <NumberPicker />
       </main>
       <Footer />
       <OrderCart />
